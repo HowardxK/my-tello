@@ -12,18 +12,40 @@ import 'styles'
 // Vue.js
 
 import Vue from 'vue/dist/vue.esm'
+import Rails from '@rails/ujs'
+import draggable from 'vuedraggable'
+import store from 'stores/list'
+import { mapGetters, mapActions } from 'vuex'
 import List from 'components/list'
+import Newlist from 'components/newlist'
 
 document.addEventListener("turbolinks:load", function(event) {
   let el = document.querySelector('#board')
 
   if (el) {
+    window.$store = store
     new Vue({
       el,
-      data: {
-        lists: JSON.parse(el.dataset.lists)
+      store,
+      computed: {
+        // ...mapGetters(["lists"])
+        lists: {
+          get() {
+            return this.$store.state.lists
+          },
+
+          set(value) {
+            this.$store.commit('UPDATE_LISTS', value)
+          }
+        }
       },
-      components: { List }
+      components: { List, Newlist, draggable },
+      methods: {
+        ...mapActions(["loadList", "moveList"]),
+      },
+      beforeMount() {
+        this.loadList()
+      }
     })
   }
 })
